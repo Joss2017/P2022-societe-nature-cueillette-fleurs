@@ -1,6 +1,6 @@
-import { list_products } from '../data';
-import SideBar from '../components/SideBar';
-import { useState } from 'react';
+import SideBar from "../components/SideBar";
+import { useState, useEffect } from "react";
+import axios from "axios";
 
 export interface Plante {
   id: string;
@@ -15,7 +15,7 @@ export interface Plante {
 /**
  * Ici les constantes ou variables dont la modification de valeur ne provoquera pas directement de re-render
  */
-const listePlantes: Plante[] = list_products;
+let listePlantes: Plante[] = [];
 let checkedCateg: string[] = [];
 
 const Home = () => {
@@ -23,11 +23,24 @@ const Home = () => {
     ...listePlantes,
   ]);
 
+  useEffect(() => {
+    axios
+      .get("http://localhost:3004/plants")
+      .then((response) => {
+        listePlantes = response.data;
+        setListPlantDisplayed(listePlantes);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+    //  console.log(listPlantDisplayed);
+  }, []);
   const handleCheckCategories = (mesCategoriesChecked: string[]) => {
-    console.log('categories checked', mesCategoriesChecked);
+    console.log("categories checked", mesCategoriesChecked);
     /**
      * Filtrer nos données ici
      */
+
     let resultFilteredPlants;
     checkedCateg = [...mesCategoriesChecked];
 
@@ -43,18 +56,18 @@ const Home = () => {
   };
 
   return (
-    <div className='d-flex align-items-stretch'>
+    <div className="d-flex align-items-stretch">
       <SideBar
         listElementPlant={listePlantes}
         onChangeCategoriesCheck={handleCheckCategories}
       />
-      <div className='container-fluid custom-main'>
+      <div className="container-fluid custom-main">
         {listPlantDisplayed.map((plante, i) => (
           <li key={i}>
             {plante.name} - {plante.category} - 💵 {plante.unitprice_ati}€ - ⭐
             {plante.rating}
           </li>
-        ))}{' '}
+        ))}{" "}
       </div>
     </div>
   );
